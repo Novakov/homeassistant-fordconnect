@@ -75,10 +75,13 @@ class FordConnectConfigFlow(
         short = secrets.token_urlsafe(16)
 
         full_state = auth_url.query["state"]
+        redirect_uri = URL(auth_url.query["redirect_uri"]).with_path(
+            "/api/ford-oauth/callback"
+        )
         modified_url = auth_url.update_query(
             {
                 "state": short,
-                "redirect_uri": "http://localhost:8123/api/ford-oauth/callback",
+                "redirect_uri": str(redirect_uri),
             }
         )
 
