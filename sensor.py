@@ -17,7 +17,25 @@ from .coordinator import MyDataCoordinator
 LOGGER = logging.getLogger(__name__)  # noqa: F821
 
 
-class AmbientTempEntity(VehicleEntity, SensorEntity):
+class VehicleSensorEntity(VehicleEntity, RestoreSensor):
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to updates."""
+        await super().async_added_to_hass()
+
+        last_state = await self.async_get_last_sensor_data()
+
+        if self.coordinator.last_update_success:
+            return
+
+        if last_state and last_state.native_value:
+            self._attr_native_value = last_state.native_value
+
+    @property
+    def available(self) -> bool:
+        return super().available or self._attr_native_value is not None
+
+
+class AmbientTempEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Ambient Temperature"
     _attr_device_class = SensorDeviceClass.TEMPERATURE
@@ -30,7 +48,7 @@ class AmbientTempEntity(VehicleEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class BatteryChargeLevelEntity(VehicleEntity, SensorEntity):
+class BatteryChargeLevelEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Battery Charge Level"
     _attr_device_class = SensorDeviceClass.BATTERY
@@ -42,8 +60,24 @@ class BatteryChargeLevelEntity(VehicleEntity, SensorEntity):
         self._attr_native_value = self.coordinator.data["battery_charge_level"]
         self.async_write_ha_state()
 
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to updates."""
+        await super().async_added_to_hass()
 
-class BatteryVoltageEntity(VehicleEntity, SensorEntity):
+        last_state = await self.async_get_last_sensor_data()
+
+        if self.coordinator.last_update_success:
+            return
+
+        if last_state and last_state.native_value:
+            self._attr_native_value = last_state.native_value
+
+    @property
+    def available(self) -> bool:
+        return super().available or self._attr_native_value is not None
+
+
+class BatteryVoltageEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Battery Voltage"
     _attr_device_class = SensorDeviceClass.VOLTAGE
@@ -55,8 +89,24 @@ class BatteryVoltageEntity(VehicleEntity, SensorEntity):
         self._attr_native_value = self.coordinator.data["battery_voltage"]
         self.async_write_ha_state()
 
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to updates."""
+        await super().async_added_to_hass()
 
-class OdometerEntity(VehicleEntity, RestoreSensor):
+        last_state = await self.async_get_last_sensor_data()
+
+        if self.coordinator.last_update_success:
+            return
+
+        if last_state and last_state.native_value:
+            self._attr_native_value = last_state.native_value
+
+    @property
+    def available(self) -> bool:
+        return super().available or self._attr_native_value is not None
+
+
+class OdometerEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Odometer"
     _attr_device_class = SensorDeviceClass.DISTANCE
@@ -85,7 +135,7 @@ class OdometerEntity(VehicleEntity, RestoreSensor):
         return super().available or self._attr_native_value is not None
 
 
-class FuelLevelEntity(VehicleEntity, RestoreSensor):
+class FuelLevelEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Fuel Level"
     _attr_device_class = None
@@ -119,7 +169,7 @@ class FuelLevelEntity(VehicleEntity, RestoreSensor):
         return super().available or self._attr_native_value is not None
 
 
-class FuelRangeEntity(VehicleEntity, RestoreSensor):
+class FuelRangeEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Fuel Range"
     _attr_device_class = SensorDeviceClass.DISTANCE
@@ -153,7 +203,7 @@ class FuelRangeEntity(VehicleEntity, RestoreSensor):
         return super().available or self._attr_native_value is not None
 
 
-class OutsideTemperatureEntity(VehicleEntity, SensorEntity):
+class OutsideTemperatureEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Outside Temperature"
     _attr_device_class = SensorDeviceClass.TEMPERATURE
@@ -166,7 +216,7 @@ class OutsideTemperatureEntity(VehicleEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class GearLeverPositionEntity(VehicleEntity, SensorEntity):
+class GearLeverPositionEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Gear Lever Position"
     _attr_device_class = None
@@ -180,7 +230,7 @@ class GearLeverPositionEntity(VehicleEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class IgnitionStatusEntity(VehicleEntity, SensorEntity):
+class IgnitionStatusEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Ignition Status"
     _attr_device_class = None
@@ -192,7 +242,7 @@ class IgnitionStatusEntity(VehicleEntity, SensorEntity):
         self.async_write_ha_state()
 
 
-class TirePressureEntity(VehicleEntity, SensorEntity):
+class TirePressureEntity(VehicleSensorEntity):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.PRESSURE
     _attr_native_unit_of_measurement = "bar"

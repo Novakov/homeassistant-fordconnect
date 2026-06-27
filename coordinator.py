@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 import json
 import logging
 from pathlib import Path
@@ -62,7 +62,8 @@ class MyDataCoordinator(DataUpdateCoordinator[VehicleData]):
         ford_api = FordAPI(self._session.token["access_token"])
 
         try:
-            return await ford_api.get_telemetry()
+            data = await ford_api.get_telemetry()
+            return data
         except httpx.HTTPStatusError as err:
             if err.response.status_code == 429:
                 raise UpdateFailed(retry_after=60) from err
