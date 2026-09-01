@@ -41,7 +41,6 @@ class Windows(TypedDict):
 
 
 class VehicleData(TypedDict):
-    acceleration: tuple[float, float, float]
     accelerator_pedal_position: float
     ambient_temp: float
     battery_charge_level: float
@@ -55,12 +54,10 @@ class VehicleData(TypedDict):
     fuel_level: float
     fuel_range: float
     gear_lever_position: str
-    heading: tuple[str, str, float, float]
     hood_status: str
     hybrid_vehicle_mode_status: str
     ignition_status: str
     outside_temperature: float
-    yaw_rate: float
     windows: Windows
     wheel_torque_status: str
     tires: Tires
@@ -107,11 +104,6 @@ def parse_api_response(data: dict[str, Any]) -> VehicleData:
         )
 
     return {
-        "acceleration": (
-            metrics["acceleration"]["value"]["x"],
-            metrics["acceleration"]["value"]["y"],
-            metrics["acceleration"]["value"]["z"],
-        ),
         "accelerator_pedal_position": metrics["acceleratorPedalPosition"]["value"],
         "ambient_temp": metrics["ambientTemp"]["value"],
         "battery_charge_level": metrics["batteryStateOfCharge"]["value"],
@@ -153,17 +145,10 @@ def parse_api_response(data: dict[str, Any]) -> VehicleData:
         "fuel_level": metrics["fuelLevel"]["value"],
         "fuel_range": metrics["fuelRange"]["value"],
         "gear_lever_position": metrics["gearLeverPosition"]["value"],
-        "heading": (
-            metrics["heading"]["gpsModuleTimestamp"],
-            metrics["heading"]["value"]["detectionType"],
-            metrics["heading"]["value"]["heading"],
-            metrics["heading"]["value"]["uncertainty"],
-        ),
         "hood_status": metrics["hoodStatus"]["value"],
         "hybrid_vehicle_mode_status": metrics["hybridVehicleModeStatus"]["value"],
         "ignition_status": metrics["ignitionStatus"]["value"],
         "outside_temperature": metrics["outsideTemperature"]["value"],
-        "yaw_rate": metrics["yawRate"]["value"],
         "windows": {
             "front_left": {
                 "lower": windows.get("DRIVER.UNSPECIFIED_FRONT", {}).get("lower", 0.0),
